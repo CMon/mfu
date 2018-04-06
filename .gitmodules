@@ -1,0 +1,3 @@
+[submodule "modules/rpclib"]
+	path = modules/rpclib
+	url = https://CMon@bitbucket.org/CMon/rpclib.git
