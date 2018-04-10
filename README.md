@@ -6,3 +6,10 @@ the intelligence is located in the server. The server does know which client is 
 
 This system should work with playlists, and multiple users that could walk between different rooms.
 
+Build instructions:
+
+Server
+create local.pri with CONFIG += server and run qmake make combination to build the source
+
+Clients
+create local.pri with CONFIG += clients and run qmake make combination to build the source

@@ -1,0 +1,8 @@
+# to build the rpclib examples
+# CONFIG += examples
+
+# Build mfu-daemon
+CONFIG += server
+
+# Build clients
+CONFIG += clients
