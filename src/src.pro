@@ -7,3 +7,8 @@ message("Building server")
 addSubdir(database)
 addSubdir(mfu-daemon, mfu-common database)
 }
+
+CONFIG(clients) {
+message("Building clients")
+addSubdir(mfu-client-qml, mfu-common)
+}
