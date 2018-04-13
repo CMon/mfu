@@ -20,6 +20,8 @@ public:
 
 private: // rpc methods
 	ClientData loginClient(QWebSocket * sendingSocket, const QString & macAddress);
+	QList<ClientData> getAllClients(QWebSocket * sendingSocket) const;
+	bool updateClient(QWebSocket * sendingSocket, const ClientData & cd);
 
 signals: // signals send to clients
 	void updatedClientData(const ClientDataResponse & response);

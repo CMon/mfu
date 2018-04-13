@@ -24,6 +24,22 @@ void ClientService::registerMethods(RPCServer * server)
 		return QJsonValue(cdr.toJson());
 	}, "login the requesting client");
 
+	server->addCallback("bool ClientService::updateClient(ClientData)", [=] (const QJsonValue & request, QWebSocket * sendingSocket) {
+		ClientDataResponse cdr;
+		cdr.fromJson(request.toObject());
+		return QJsonValue(updateClient(sendingSocket, cdr.toClientData()));
+	}, "update the given client, you have to be logged in as Administrator for this to work");
+
+	server->addCallback("QList<ClientData> ClientService::getAllClients()", [=] (const QJsonValue &, QWebSocket * sendingSocket) {
+		QList<ClientData> clients = getAllClients(sendingSocket);
+		QJsonArray list;
+		for(const ClientData & cd : clients) {
+			list << ClientDataResponse(cd).toJson();
+		}
+		return QJsonValue(list);
+	}, "returns a list of all given clients, you have to be logged in as Administrator for this to work");
+
+
 	// connect notifications
 	connect(this, &ClientService::updatedClientData, server, [server, this] (const ClientDataResponse & cdr) {
 		QList<QWebSocket *> recipients;
@@ -67,6 +83,40 @@ ClientData ClientService::loginClient(QWebSocket * sendingSocket, const QString 
 	});
 
 	return cd;
+}
+
+QList<ClientData> ClientService::getAllClients(QWebSocket * sendingSocket) const
+{
+	if (!userService_->userHasPermission(sendingSocket, User::Permission::Admin)) return QList<ClientData>();
+
+	QList<ClientData> clients = DB::getAllClients();
+
+	for (ClientData & availableClient: clients) {
+		for (const ClientData & connectedClient: connectedClients_) {
+			if (connectedClient.macAddress() == availableClient.macAddress()) {
+				availableClient.setLoggedIn(true);
+				break;
+			}
+		}
+	}
+
+	return clients;
+}
+
+bool ClientService::updateClient(QWebSocket * sendingSocket, const ClientData & clientData)
+{
+	if (!userService_->userHasPermission(sendingSocket, User::Permission::Admin)) return false;
+
+	const ClientData cd = DB::getClient(clientData.macAddress());
+	if (cd.macAddress().isEmpty()) return false;
+	if (cd == clientData) return true;
+
+	const bool updated = DB::updateClient(clientData);
+
+	if (updated) {
+		emit updatedClientData(clientData);
+	}
+	return updated;
 }
 
 QWebSocket * ClientService::getClientSocketForMac(const QString & macAddress)

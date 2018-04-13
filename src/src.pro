@@ -11,4 +11,5 @@ addSubdir(mfu-daemon, mfu-common database)
 CONFIG(clients) {
 message("Building clients")
 addSubdir(mfu-client-qml, mfu-common)
+addSubdir(mfu-admin, mfu-common)
 }

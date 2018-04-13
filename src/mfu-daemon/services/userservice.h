@@ -17,6 +17,7 @@ public:
 
 	void registerMethods(RPCServer * server);
 
+	bool userHasPermission(QWebSocket * sendingSocket, const User::Permission & permission);
 	QList<QWebSocket *> getLoggedInAdministratorSockets();
 
 public: // rpc methods

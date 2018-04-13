@@ -21,6 +21,19 @@ void UserService::registerMethods(RPCServer * server)
 	}, "Method to login users" );
 }
 
+bool UserService::userHasPermission(QWebSocket * sendingSocket, const User::Permission & permission)
+{
+	if (!loggedInUser_.contains(sendingSocket)) {
+		qWarning() << "User not logged in";
+		return false;
+	}
+
+	const User u = loggedInUser_.value(sendingSocket);
+	const bool hasPermission = u.permissions.contains(permission);
+	if (!hasPermission) qWarning() << "User has missing permission:" << permission;
+	return hasPermission;
+}
+
 QList<QWebSocket *> UserService::getLoggedInAdministratorSockets()
 {
 	QList<QWebSocket *> retval;
